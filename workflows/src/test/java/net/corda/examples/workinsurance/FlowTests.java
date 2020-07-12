@@ -37,7 +37,7 @@ public class FlowTests {
     //simple example test to test if the issue insurance flow only carries one output.
     @Test
     public void dummyTest() throws Exception{
-        WorkerInfo car = new WorkerInfo(
+        WorkerInfo worker = new WorkerInfo(
                 "I4U64FY56I48Y",
                 "165421658465465",
                 "BMW",
@@ -50,7 +50,7 @@ public class FlowTests {
                 2000,
                 18,
                 49,
-                car);
+                worker);
 
         IssueInsuranceFlow.IssueInsuranceInitiator flow = new IssueInsuranceFlow.IssueInsuranceInitiator(policy1,b.getInfo().getLegalIdentities().get(0));
         CordaFuture<SignedTransaction> future = a.startFlow(flow);

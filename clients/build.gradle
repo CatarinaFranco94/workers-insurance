@@ -25,5 +25,5 @@ dependencies {
 }
 
 springBoot {
-    mainClassName = "net.corda.examples.carinsurance.webserver.Starter"
+    mainClassName = "net.corda.examples.workinsurance.webserver.Starter"
 }
