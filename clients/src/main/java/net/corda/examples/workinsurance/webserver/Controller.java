@@ -2,10 +2,7 @@ package net.corda.examples.workinsurance.webserver;
 
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
-import net.corda.examples.workinsurance.flows.ClaimInfo;
-import net.corda.examples.workinsurance.flows.InsuranceClaimFlow;
-import net.corda.examples.workinsurance.flows.InsuranceInfo;
-import net.corda.examples.workinsurance.flows.IssueInsuranceFlow;
+import net.corda.examples.workinsurance.flows.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +25,8 @@ public class Controller {
     /*
     * API to trigger the Insurance Issuance flow.
     **/
-    @PostMapping(value = "/vehicleInsurance/{insuree}")
-    private String vehicleSale(@RequestBody InsuranceInfo insuranceInfo, @PathVariable String insuree) {
+    @PostMapping(value = "/workerInsurance/{insuree}")
+    private String workerSale(@RequestBody InsuranceInfo insuranceInfo, @PathVariable String insuree) {
 
         // Get the Party object from the partyName.
         Set<Party> matchingParties = proxy.partiesFromName(insuree, false);
@@ -44,11 +41,12 @@ public class Controller {
      * API to trigger the Insurance Claim flow. It accepts the claim containing details of the claim and the
      * policyNumber of the insurance in passed as path variable.
      **/
-    @PostMapping(value = "/vehicleInsurance/claim/{policyNumber}")
+    @PostMapping(value = "/workerInsurance/claim/{policyNumber}")
     private String claim(@RequestBody ClaimInfo claimInfo, @PathVariable String policyNumber) {
 
         // Trigger InsuranceClaimInitiator flow.
         proxy.startFlowDynamic(InsuranceClaimFlow.InsuranceClaimInitiator.class, claimInfo, policyNumber);
         return "Insurance Claim Completed";
     }
+
 }

@@ -4,57 +4,32 @@ package net.corda.examples.workinsurance.states;
 import net.corda.core.serialization.CordaSerializable;
 
 /**
- * Simple POJO class for the vehicle details.
+ * Simple POJO class for the worker details.
  * Corda uses its own serialization framework hence the class needs to be annotated with @CordaSerializable, so that
  * the objects of the class can be serialized to be passed across different nodes.
  */
 @CordaSerializable
 public class WorkerDetail {
 
-    private final String registrationNumber;
-    private final String chasisNumber;
-    private final String make;
-    private final String model;
-    private final String variant;
-    private final String color;
-    private final String fuelType;
+    private final String policyNumber;
+    private final String name;
+    private final String healthNumber;
 
-    public WorkerDetail(String registrationNumber, String chasisNumber, String make, String model, String variant,
-                        String color, String fuelType) {
-        this.registrationNumber = registrationNumber;
-        this.chasisNumber = chasisNumber;
-        this.make = make;
-        this.model = model;
-        this.variant = variant;
-        this.color = color;
-        this.fuelType = fuelType;
+    public WorkerDetail(String policyNumber, String name, String healthNumber) {
+        this.policyNumber = policyNumber;
+        this.name = name;
+        this.healthNumber = healthNumber;
     }
 
-    public String getRegistrationNumber() {
-        return registrationNumber;
+    public String getPolicyNumber() {
+        return policyNumber;
     }
 
-    public String getChasisNumber() {
-        return chasisNumber;
+    public String getName() {
+        return name;
     }
 
-    public String getMake() {
-        return make;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public String getVariant() {
-        return variant;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public String getFuelType() {
-        return fuelType;
+    public String getHealthNumber() {
+        return healthNumber;
     }
 }

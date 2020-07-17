@@ -8,7 +8,10 @@ import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.examples.workinsurance.contracts.InsuranceContract;
 import net.corda.examples.workinsurance.states.Claim;
+import net.corda.examples.workinsurance.states.ClaimStatus;
 import net.corda.examples.workinsurance.states.InsuranceState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +26,8 @@ public class InsuranceClaimFlow {
 
         private final ClaimInfo claimInfo;
         private final String policyNumber;
+
+        private final static Logger logger = LoggerFactory.getLogger(InsuranceClaimInitiator.class);
 
         public InsuranceClaimInitiator(ClaimInfo claimInfo, String policyNumber) {
             this.claimInfo = claimInfo;
@@ -41,11 +46,11 @@ public class InsuranceClaimFlow {
 
             StateAndRef<InsuranceState> inputStateAndRef = insuranceStateAndRefs.stream().filter(insuranceStateAndRef -> {
                 InsuranceState insuranceState = insuranceStateAndRef.getState().getData();
-                return insuranceState.getPolicyNumber().equals(policyNumber);
+                return insuranceState.getWorkerDetail().getPolicyNumber().equals(policyNumber);
             }).findAny().orElseThrow(() -> new IllegalArgumentException("Policy Not Found"));
 
             Claim claim = new Claim(claimInfo.getClaimNumber(), claimInfo.getClaimDescription(),
-                    claimInfo.getClaimAmount());
+                    claimInfo.getClaimAmount(), ClaimStatus.Proposal);
             InsuranceState input = inputStateAndRef.getState().getData();
 
             List<Claim> claims = new ArrayList<>();
@@ -56,9 +61,13 @@ public class InsuranceClaimFlow {
                 claims.add(claim);
             }
 
+            logger.info("iNFOOOOO INSURER "+ input.getInsurer());
+            logger.info("iNFOOOOO INSUREE "+ input.getInsuree());
+
+
             //Create the output state
-            InsuranceState output = new InsuranceState(input.getPolicyNumber(), input.getInsuredValue(),
-                    input.getDuration(), input.getPremium(), input.getInsurer(), input.getInsuree(),
+            InsuranceState output = new InsuranceState(input.getInsuredValue(),
+                    input.getDuration(), input.getInsurer(), input.getInsuree(),
                     input.getWorkerDetail(), claims);
 
             // Build the transaction.

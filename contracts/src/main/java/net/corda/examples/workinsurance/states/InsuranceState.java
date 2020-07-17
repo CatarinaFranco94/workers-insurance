@@ -29,10 +29,8 @@ public class InsuranceState implements QueryableState {
     private final WorkerDetail workerDetail;
 
     // Fields related to the insurance state.
-    private final String policyNumber;
     private final long insuredValue;
     private final int duration;
-    private final int premium;
 
     private final Party insurer;
     private final Party insuree;
@@ -41,12 +39,10 @@ public class InsuranceState implements QueryableState {
     // This will be used to demonstrate one-to-many relationship
     private final List<Claim> claims;
 
-    public InsuranceState(String policyNumber, long insuredValue, int duration, int premium, Party insurer,
+    public InsuranceState(long insuredValue, int duration, Party insurer,
                           Party insuree, WorkerDetail workerDetail, List<Claim> claims) {
-        this.policyNumber = policyNumber;
         this.insuredValue = insuredValue;
         this.duration = duration;
-        this.premium = premium;
         this.insurer = insurer;
         this.insuree = insuree;
         this.workerDetail = workerDetail;
@@ -73,25 +69,20 @@ public class InsuranceState implements QueryableState {
                     PersistentClaim persistentClaim = new PersistentClaim(
                             claim.getClaimNumber(),
                             claim.getClaimDescription(),
-                            claim.getClaimAmount()
+                            claim.getClaimAmount(),
+                            claim.getClaimStatus()
                     );
                     persistentClaims.add(persistentClaim);
                 }
             }
 
             return new PersistentInsurance(
-                    this.policyNumber,
                     this.insuredValue,
                     this.duration,
-                    this.premium,
                     this.workerDetail ==null ? null : new PersistentWorker(
-                            workerDetail.getRegistrationNumber(),
-                            workerDetail.getChasisNumber(),
-                            workerDetail.getMake(),
-                            workerDetail.getModel(),
-                            workerDetail.getVariant(),
-                            workerDetail.getColor(),
-                            workerDetail.getFuelType()
+                            workerDetail.getPolicyNumber(),
+                            workerDetail.getName(),
+                            workerDetail.getHealthNumber()
                     ),
                     this.claims == null? null: persistentClaims
             );
@@ -117,20 +108,12 @@ public class InsuranceState implements QueryableState {
         return ImmutableList.of(insuree, insurer);
     }
 
-    public String getPolicyNumber() {
-        return policyNumber;
-    }
-
     public long getInsuredValue() {
         return insuredValue;
     }
 
     public int getDuration() {
         return duration;
-    }
-
-    public int getPremium() {
-        return premium;
     }
 
     public Party getInsurer() {

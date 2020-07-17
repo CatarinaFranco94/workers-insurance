@@ -14,17 +14,15 @@ import java.util.List;
 @Table(name = "INSURANCE_DETAIL")
 public class PersistentInsurance extends PersistentState implements Serializable {
 
-    @Column private final String policyNumber;
     @Column private final Long insuredValue;
     @Column private final Integer duration;
-    @Column private final Integer premium;
 
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumns({
             @JoinColumn(name = "id", referencedColumnName = "id"),
-            @JoinColumn(name = "registrationNumber", referencedColumnName = "registrationNumber"),
+            @JoinColumn(name = "policyNumber", referencedColumnName = "policyNumber"),
     })
-    private final PersistentWorker vehicle;
+    private final PersistentWorker worker;
 
     @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumns({
@@ -37,42 +35,30 @@ public class PersistentInsurance extends PersistentState implements Serializable
      * Default constructor required by Hibernate
      */
     public PersistentInsurance() {
-        this.policyNumber = null;
         this.insuredValue = null;
         this.duration = null;
-        this.premium = null;
-        this.vehicle = null;
+        this.worker = null;
         this.claims = null;
     }
 
-    public PersistentInsurance(String policyNumber, Long insuredValue, Integer duration, Integer premium, PersistentWorker vehicle,
+    public PersistentInsurance(Long insuredValue, Integer duration, PersistentWorker worker,
                                List<PersistentClaim> claims) {
-        this.policyNumber = policyNumber;
         this.insuredValue = insuredValue;
         this.duration = duration;
-        this.premium = premium;
-        this.vehicle = vehicle;
+        this.worker = worker;
         this.claims = claims;
-    }
-
-    public String getPolicyNumber() {
-        return policyNumber;
     }
 
     public Long getInsuredValue() {
         return insuredValue;
     }
 
-    public Integer getPremium() {
-        return premium;
-    }
-
     public Integer getDuration() {
         return duration;
     }
 
-    public PersistentWorker getVehicle() {
-        return vehicle;
+    public PersistentWorker getWorker() {
+        return worker;
     }
 
     public List<PersistentClaim> getClaims() {

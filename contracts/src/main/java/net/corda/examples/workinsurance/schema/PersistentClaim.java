@@ -1,5 +1,7 @@
 package net.corda.examples.workinsurance.schema;
 
+import net.corda.examples.workinsurance.states.ClaimStatus;
+
 import javax.persistence.*;
 import java.util.UUID;
 
@@ -15,6 +17,7 @@ public class PersistentClaim {
     @Column private final String claimNumber;
     @Column private final String claimDescription;
     @Column private final Integer claimAmount;
+    @Column private final ClaimStatus claimStatus;
 
     /**
      * Default constructor required by Hibernate
@@ -24,13 +27,15 @@ public class PersistentClaim {
         this.claimNumber = null;
         this.claimDescription = null;
         this.claimAmount = null;
+        this.claimStatus = ClaimStatus.None;
     }
 
-    public PersistentClaim(String claimNumber, String claimDescription, Integer claimAmount) {
+    public PersistentClaim(String claimNumber, String claimDescription, Integer claimAmount, ClaimStatus claimStatus) {
         this.id = UUID.randomUUID();
         this.claimNumber = claimNumber;
         this.claimDescription = claimDescription;
         this.claimAmount = claimAmount;
+        this.claimStatus = claimStatus;
     }
 
     public UUID getId() {
@@ -48,4 +53,6 @@ public class PersistentClaim {
     public Integer getClaimAmount() {
         return claimAmount;
     }
+
+    public ClaimStatus getClaimStatus() { return claimStatus; }
 }

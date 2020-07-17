@@ -7,21 +7,13 @@ public class InsuranceInfo {
 
     private final WorkerInfo workerInfo;
 
-    private final String policyNumber;
     private final long insuredValue;
     private final int duration;
-    private final int premium;
 
-    public InsuranceInfo(String policyNumber, long insuredValue, int duration, int premium, WorkerInfo workerInfo) {
-        this.policyNumber = policyNumber;
+    public InsuranceInfo(long insuredValue, int duration, WorkerInfo workerInfo) {
         this.insuredValue = insuredValue;
         this.duration = duration;
-        this.premium = premium;
         this.workerInfo = workerInfo;
-    }
-
-    public String getPolicyNumber() {
-        return policyNumber;
     }
 
     public long getInsuredValue() {
@@ -30,10 +22,6 @@ public class InsuranceInfo {
 
     public int getDuration() {
         return duration;
-    }
-
-    public int getPremium() {
-        return premium;
     }
 
     public WorkerInfo getWorkerInfo() {

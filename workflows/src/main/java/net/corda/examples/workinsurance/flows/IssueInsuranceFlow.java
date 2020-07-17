@@ -50,14 +50,11 @@ public class IssueInsuranceFlow {
             Party insurer = getOurIdentity();
 
             WorkerInfo workerInfo = insuranceInfo.getWorkerInfo();
-            WorkerDetail workerDetail = new WorkerDetail(workerInfo.getRegistrationNumber(),
-                    workerInfo.getChasisNumber(), workerInfo.getMake(), workerInfo.getModel(),
-                    workerInfo.getVariant(), workerInfo.getColor(), workerInfo.getFuelType());
+            WorkerDetail workerDetail = new WorkerDetail(workerInfo.getPolicyNumber(), workerInfo.getName(), workerInfo.getHealthNumber());
 
             // Build the insurance output state.
-            InsuranceState insurance = new InsuranceState(insuranceInfo.getPolicyNumber(), insuranceInfo.getInsuredValue(),
-                    insuranceInfo.getDuration(), insuranceInfo.getPremium(), insurer, insuree, workerDetail,
-                    null);
+            InsuranceState insurance = new InsuranceState(insuranceInfo.getInsuredValue(),
+                    insuranceInfo.getDuration(), insurer, insuree, workerDetail,null);
 
             // Build the transaction
             TransactionBuilder builder = new TransactionBuilder(notary)

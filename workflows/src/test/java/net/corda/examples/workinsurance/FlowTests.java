@@ -39,17 +39,12 @@ public class FlowTests {
     public void dummyTest() throws Exception{
         WorkerInfo worker = new WorkerInfo(
                 "I4U64FY56I48Y",
-                "165421658465465",
-                "BMW",
-                "M3",
-                "MPower",
-                "Black",
-                "gas");
+                "Catarina",
+                "165421658465465");
+
         InsuranceInfo policy1 = new InsuranceInfo(
-                "8742",
                 2000,
                 18,
-                49,
                 worker);
 
         IssueInsuranceFlow.IssueInsuranceInitiator flow = new IssueInsuranceFlow.IssueInsuranceInitiator(policy1,b.getInfo().getLegalIdentities().get(0));

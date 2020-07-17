@@ -7,77 +7,48 @@ import javax.persistence.Table;
 import java.util.UUID;
 
 /**
- * JPA Entity for saving vehicle details to the database table
+ * JPA Entity for saving worker details to the database table
  */
 @Entity
 @Table(name = "WORKER_DETAIL")
 public class PersistentWorker {
 
     @Id private final UUID id;
-    @Column private final String registrationNumber;
-    @Column private final String chasisNumber;
-    @Column private final String make;
-    @Column private final String model;
-    @Column private final String variant;
-    @Column private final String color;
-    @Column private final String fuelType;
+    @Column private final String policyNumber;
+    @Column private final String workerName;
+    @Column private final String healthNumber;
 
     /**
      * Default constructor required by Hibernate
      */
     public PersistentWorker() {
         this.id = null;
-        this.registrationNumber = null;
-        this.chasisNumber = null;
-        this.make = null;
-        this.model = null;
-        this.variant = null;
-        this.color = null;
-        this.fuelType = null;
+        this.policyNumber = null;
+        this.workerName = null;
+        this.healthNumber = null;
     }
 
-    public PersistentWorker(String registrationNumber, String chasisNumber, String make, String model, String variant,
-                            String color, String fuelType) {
+    public PersistentWorker(String policyNumber, String workerName, String healthNumber) {
         this.id = UUID.randomUUID();
-        this.registrationNumber = registrationNumber;
-        this.chasisNumber = chasisNumber;
-        this.make = make;
-        this.model = model;
-        this.variant = variant;
-        this.color = color;
-        this.fuelType = fuelType;
+        this.policyNumber = policyNumber;
+        this.workerName = workerName;
+        this.healthNumber = healthNumber;
     }
 
     public UUID getId() {
         return id;
     }
 
-    public String getRegistrationNumber() {
-        return registrationNumber;
+    public String getPolicyNumber() {
+        return policyNumber;
     }
 
-    public String getChasisNumber() {
-        return chasisNumber;
+    public String getWorkerName() {
+        return workerName;
     }
 
-    public String getMake() {
-        return make;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public String getVariant() {
-        return variant;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public String getFuelType() {
-        return fuelType;
+    public String getHealthNumber() {
+        return healthNumber;
     }
 
 }

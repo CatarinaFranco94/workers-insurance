@@ -13,11 +13,13 @@ public class Claim {
     private final String claimNumber;
     private final String claimDescription;
     private final int claimAmount;
+    private final ClaimStatus claimStatus;
 
-    public Claim(String claimNumber, String claimDescription, int claimAmount) {
+    public Claim(String claimNumber, String claimDescription, int claimAmount, ClaimStatus claimStatus) {
         this.claimNumber = claimNumber;
         this.claimDescription = claimDescription;
         this.claimAmount = claimAmount;
+        this.claimStatus = claimStatus;
     }
 
     public String getClaimNumber() {
@@ -31,4 +33,6 @@ public class Claim {
     public int getClaimAmount() {
         return claimAmount;
     }
+
+    public ClaimStatus getClaimStatus() { return claimStatus; }
 }

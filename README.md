@@ -10,7 +10,7 @@ made against the insurance.
 
 There are two flow in this cordapp:
 
-1. IssueInsuranceInitiator - Creates the insurance state with the associated vehicle
+1. IssueInsuranceInitiator - Creates the insurance state with the associated worker
 information.
 
 2. InsuranceClaimInitiator - Creates the claims against the insurance.
@@ -28,3 +28,5 @@ Then type: (to run the nodes)
 ```
 call build/nodes/runnodes.bat
 ```
+To start the localhost:8080:
+gradlew bootRun
