@@ -11,3 +11,4 @@
 corda-nodeinfo/corda-nodeinfo.iml
 *~*
 *.log
+*.class

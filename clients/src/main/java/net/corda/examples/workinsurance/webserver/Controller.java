@@ -49,4 +49,15 @@ public class Controller {
         return "Insurance Claim Completed";
     }
 
+    /*
+     * API to trigger the Insurance Claim flow. It accepts the claim containing details of the claim and the
+     * policyNumber of the insurance in passed as path variable.
+     **/
+    @PostMapping(value = "/workerInsurance/acceptanceClaim/{policyNumber}")
+    private String claimAcceptance(@RequestBody ClaimInfo claimInfo, @PathVariable String policyNumber) {
+
+        // Trigger InsuranceClaimInitiator flow.
+        proxy.startFlowDynamic(InsuranceAcceptanceClaimFlow.InsuranceAcceptanceClaimInitiator.class, claimInfo, policyNumber);
+        return "Insurance Acceptance Claim Completed";
+    }
 }
