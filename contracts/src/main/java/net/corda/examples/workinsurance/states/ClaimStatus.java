@@ -6,6 +6,6 @@ import net.corda.core.serialization.CordaSerializable;
 public enum ClaimStatus {
     None,
     Proposal,
-    Acceptance,
-    Reject
+    Accepted,
+    Rejected
 }

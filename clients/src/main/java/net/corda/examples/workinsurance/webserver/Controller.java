@@ -50,7 +50,7 @@ public class Controller {
     }
 
     /*
-     * API to trigger the Insurance Claim flow. It accepts the claim containing details of the claim and the
+     * API to trigger the Insurance Acceptance Claim flow. It accepts the claim containing details of the claim and the
      * policyNumber of the insurance in passed as path variable.
      **/
     @PostMapping(value = "/workerInsurance/acceptanceClaim/{policyNumber}")
@@ -60,4 +60,17 @@ public class Controller {
         proxy.startFlowDynamic(InsuranceAcceptanceClaimFlow.InsuranceAcceptanceClaimInitiator.class, claimInfo, policyNumber);
         return "Insurance Acceptance Claim Completed";
     }
+
+    /*
+     * API to trigger the Insurance Claim flow. It accepts the claim containing details of the claim and the
+     * policyNumber of the insurance in passed as path variable.
+     **/
+    @PostMapping(value = "/workerInsurance/rejectClaim/{policyNumber}")
+    private String claimReject(@RequestBody ClaimInfo claimInfo, @PathVariable String policyNumber) {
+
+        // Trigger InsuranceClaimInitiator flow.
+        proxy.startFlowDynamic(InsuranceRejectClaimFlow.InsuranceRejectClaimInitiator.class, claimInfo, policyNumber);
+        return "Insurance Reject Claim Completed";
+    }
+
 }

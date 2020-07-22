@@ -17,6 +17,8 @@ public class PersistentClaim {
     @Column private final String claimNumber;
     @Column private final String claimDescription;
     @Column private final Integer claimAmount;
+
+    @Enumerated(EnumType.STRING)
     @Column private final ClaimStatus claimStatus;
 
     /**

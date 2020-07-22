@@ -16,22 +16,22 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InsuranceAcceptanceClaimFlow {
+public class InsuranceRejectClaimFlow {
 
-    private InsuranceAcceptanceClaimFlow(){}
+    private InsuranceRejectClaimFlow(){}
 
     @InitiatingFlow
     @StartableByRPC
-    public static class InsuranceAcceptanceClaimInitiator extends FlowLogic<SignedTransaction> {
+    public static class InsuranceRejectClaimInitiator extends FlowLogic<SignedTransaction> {
 
         private final ClaimInfo claimInfo;
         private final String policyNumber;
 
-        private final static Logger logger = LoggerFactory.getLogger(InsuranceAcceptanceClaimInitiator.class);
+        private final static Logger logger = LoggerFactory.getLogger(InsuranceRejectClaimInitiator.class);
 
         // TO DO :: Mudar ESTE input - da claimInfo so preciso do ClaimNumber, por isso criar novo obj
-        // que tenha o claimNumber e os campos que vao ser necessarios acrescentar para uma acceptance
-        public InsuranceAcceptanceClaimInitiator(ClaimInfo claimInfo, String policyNumber) {
+        // que tenha o claimNumber e os campos que vao ser necessarios acrescentar para um reject
+        public InsuranceRejectClaimInitiator(ClaimInfo claimInfo, String policyNumber) {
             this.claimInfo = claimInfo;
             this.policyNumber = policyNumber;
         }
@@ -56,7 +56,7 @@ public class InsuranceAcceptanceClaimFlow {
             ).findAny().orElseThrow(() -> new IllegalArgumentException("Proposed Claim Not Found"));
 
             Claim claim = new Claim(claimInfo.getClaimNumber(), inputClaim.getClaimDescription(),
-                    inputClaim.getClaimAmount(), ClaimStatus.Accepted);
+                    inputClaim.getClaimAmount(), ClaimStatus.Rejected);
             InsuranceState input = inputStateAndRef.getState().getData();
 
             List<Claim> claims = new ArrayList<>();
@@ -76,7 +76,7 @@ public class InsuranceAcceptanceClaimFlow {
             TransactionBuilder transactionBuilder = new TransactionBuilder(inputStateAndRef.getState().getNotary())
                     .addInputState(inputStateAndRef)
                     .addOutputState(output, InsuranceContract.ID)
-                    .addCommand(new InsuranceContract.Commands.AcceptClaim(), ImmutableList.of(getOurIdentity().getOwningKey()));
+                    .addCommand(new InsuranceContract.Commands.RejectClaim(), ImmutableList.of(getOurIdentity().getOwningKey()));
 
             // Verify the transaction
             transactionBuilder.verify(getServiceHub());
@@ -90,12 +90,12 @@ public class InsuranceAcceptanceClaimFlow {
         }
     }
 
-    @InitiatedBy(InsuranceAcceptanceClaimInitiator.class)
-    public static class InsuranceAcceptanceClaimResponder extends FlowLogic<SignedTransaction> {
+    @InitiatedBy(InsuranceRejectClaimInitiator.class)
+    public static class InsuranceRejectClaimResponder extends FlowLogic<SignedTransaction> {
 
         private FlowSession counterpartySession;
 
-        public InsuranceAcceptanceClaimResponder(FlowSession counterpartySession) {
+        public InsuranceRejectClaimResponder(FlowSession counterpartySession) {
             this.counterpartySession = counterpartySession;
         }
 

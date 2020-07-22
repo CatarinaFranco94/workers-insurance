@@ -3,13 +3,11 @@ package net.corda.examples.workinsurance.contracts;
 import net.corda.core.contracts.CommandData;
 import net.corda.core.contracts.CommandWithParties;
 import net.corda.core.contracts.Contract;
-import net.corda.core.contracts.ContractState;
 import net.corda.core.transactions.LedgerTransaction;
 import net.corda.examples.workinsurance.states.Claim;
 import net.corda.examples.workinsurance.states.ClaimStatus;
 import net.corda.examples.workinsurance.states.InsuranceState;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,9 +36,33 @@ public class InsuranceContract implements Contract {
         }else if(command.getValue() instanceof InsuranceContract.Commands.AcceptClaim) {
             verifyClaimAcceptance(tx);
 
+        }else if(command.getValue() instanceof InsuranceContract.Commands.RejectClaim){
+            verifyClaimReject(tx);
+
         } else {
             throw new IllegalArgumentException("Unrecognized command");
         }
+    }
+
+    private void verifyClaimReject(LedgerTransaction tx) {
+        InsuranceState inputState = (InsuranceState)tx.getInput(0);
+        InsuranceState outputState = (InsuranceState) tx.getOutput(0);
+
+        Claim outputClaim = outputState.getClaims().get(outputState.getClaims().size() -1 );
+
+        List<Claim> inputClaimListWithOutputClaimNumber = inputState.getClaims().stream()
+                .filter(claimList -> claimList.getClaimNumber().equals(outputClaim.getClaimNumber()))
+                .collect(Collectors.toList());
+
+        Claim inputClaim = inputClaimListWithOutputClaimNumber.get(inputClaimListWithOutputClaimNumber.size() - 1);
+
+        requireThat(req -> {
+            req.using("Insurance transaction must have input states", (!tx.getInputStates().isEmpty()));
+            req.using("Input State must have at least one claim with the same number as the output claim", (!inputClaimListWithOutputClaimNumber.isEmpty()));
+            req.using("Input state claim must be in proposal status", (inputClaim.getClaimStatus().equals(ClaimStatus.Proposal)));
+            req.using("Output Claim must be in reject status", outputClaim.getClaimStatus().equals(ClaimStatus.Rejected));
+            return null;
+        });
     }
 
     private void verifyInsuranceIssue(LedgerTransaction tx) {
@@ -61,21 +83,20 @@ public class InsuranceContract implements Contract {
         InsuranceState inputState = (InsuranceState)tx.getInput(0);
         InsuranceState outputState = (InsuranceState) tx.getOutput(0);
 
-        List<Claim> inputProposalClaims = inputState.getClaims().stream()
-                .filter(correspondentClaim -> correspondentClaim.getClaimStatus().equals(ClaimStatus.Proposal))
+        Claim outputClaim = outputState.getClaims().get(outputState.getClaims().size() - 1 );
+
+        List<Claim> inputClaimListWithOutputClaimNumber = inputState.getClaims().stream()
+                .filter(claimList -> claimList.getClaimNumber().equals(outputClaim.getClaimNumber()))
                 .collect(Collectors.toList());
 
-        Claim ouputClaim = outputState.getClaims().get(outputState.getClaims().size() -1);
+        Claim inputClaim = inputClaimListWithOutputClaimNumber.get(inputClaimListWithOutputClaimNumber.size() - 1);
 
-        List<Claim> inputClaimsWithOutputClaimNo = inputProposalClaims.stream()
-                .filter(correspondentClaim -> correspondentClaim.getClaimNumber().equals(ouputClaim.getClaimNumber()))
-                .collect(Collectors.toList());
 
         requireThat(req -> {
             req.using("Insurance transaction must have input states", (!tx.getInputStates().isEmpty()));
-            req.using("Input State must have at least one claim in proposal state", (!inputProposalClaims.isEmpty()));
-            req.using("Input state must have ONE claim with the same number as the output claim and in proposal status", (inputClaimsWithOutputClaimNo.size() == 1));
-            req.using("Output State must be in acceptance status", ouputClaim.getClaimStatus().equals(ClaimStatus.Acceptance));
+            req.using("Input State must have at least one claim with the same number as the output claim", (!inputClaimListWithOutputClaimNumber.isEmpty()));
+            req.using("Input state claim must be in proposal status", (inputClaim.getClaimStatus().equals(ClaimStatus.Proposal)));
+            req.using("Output Claim must be in acceptance status", outputClaim.getClaimStatus().equals(ClaimStatus.Accepted));
             return null;
         });
     }
@@ -85,5 +106,6 @@ public class InsuranceContract implements Contract {
         class IssueInsurance implements Commands {}
         class AddClaim implements Commands {}
         class AcceptClaim implements Commands {}
+        class RejectClaim implements Commands {}
     }
 }
