@@ -40,7 +40,8 @@ public class FlowTests {
         WorkerInfo worker = new WorkerInfo(
                 "I4U64FY56I48Y",
                 "Catarina",
-                "165421658465465");
+                "165421658465465",
+                "Critical Software");
 
         InsuranceInfo policy1 = new InsuranceInfo(
                 2000,

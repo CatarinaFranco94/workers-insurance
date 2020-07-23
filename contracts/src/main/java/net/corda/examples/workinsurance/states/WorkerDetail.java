@@ -14,11 +14,13 @@ public class WorkerDetail {
     private final String policyNumber;
     private final String name;
     private final String healthNumber;
+    private final String policyHolder;
 
-    public WorkerDetail(String policyNumber, String name, String healthNumber) {
+    public WorkerDetail(String policyNumber, String name, String healthNumber, String policyHolder) {
         this.policyNumber = policyNumber;
         this.name = name;
         this.healthNumber = healthNumber;
+        this.policyHolder = policyHolder;
     }
 
     public String getPolicyNumber() {
@@ -32,4 +34,6 @@ public class WorkerDetail {
     public String getHealthNumber() {
         return healthNumber;
     }
+
+    public String getPolicyHolder() { return policyHolder; }
 }

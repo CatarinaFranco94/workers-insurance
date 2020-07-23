@@ -52,7 +52,7 @@ public class IssueInsuranceFlow {
             Party insurer = getOurIdentity();
 
             WorkerInfo workerInfo = insuranceInfo.getWorkerInfo();
-            WorkerDetail workerDetail = new WorkerDetail(workerInfo.getPolicyNumber(), workerInfo.getName(), workerInfo.getHealthNumber());
+            WorkerDetail workerDetail = new WorkerDetail(workerInfo.getPolicyNumber(), workerInfo.getName(), workerInfo.getHealthNumber(), workerInfo.getPolicyHolder());
 
             // Build the insurance output state.
             InsuranceState insurance = new InsuranceState(insuranceInfo.getInsuredValue(),

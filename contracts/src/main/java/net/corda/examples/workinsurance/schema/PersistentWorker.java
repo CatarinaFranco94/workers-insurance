@@ -17,6 +17,7 @@ public class PersistentWorker {
     @Column private final String policyNumber;
     @Column private final String workerName;
     @Column private final String healthNumber;
+    @Column private final String policyHolder;
 
     /**
      * Default constructor required by Hibernate
@@ -26,13 +27,15 @@ public class PersistentWorker {
         this.policyNumber = null;
         this.workerName = null;
         this.healthNumber = null;
+        this.policyHolder = null;
     }
 
-    public PersistentWorker(String policyNumber, String workerName, String healthNumber) {
+    public PersistentWorker(String policyNumber, String workerName, String healthNumber, String policyHolder) {
         this.id = UUID.randomUUID();
         this.policyNumber = policyNumber;
         this.workerName = workerName;
         this.healthNumber = healthNumber;
+        this.policyHolder = policyHolder;
     }
 
     public UUID getId() {
@@ -50,5 +53,7 @@ public class PersistentWorker {
     public String getHealthNumber() {
         return healthNumber;
     }
+
+    public String getPolicyHolder() { return policyHolder; }
 
 }
