@@ -82,7 +82,8 @@ public class InsuranceState implements QueryableState {
                     this.workerDetail ==null ? null : new PersistentWorker(
                             workerDetail.getPolicyNumber(),
                             workerDetail.getName(),
-                            workerDetail.getHealthNumber()
+                            workerDetail.getHealthNumber(),
+                            workerDetail.getPolicyHolder()
                     ),
                     this.claims == null? null: persistentClaims
             );
