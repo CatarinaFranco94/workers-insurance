@@ -8,10 +8,7 @@ import net.corda.core.schemas.MappedSchema;
 import net.corda.core.schemas.PersistentState;
 import net.corda.core.schemas.QueryableState;
 import net.corda.examples.workinsurance.contracts.InsuranceContract;
-import net.corda.examples.workinsurance.schema.InsuranceSchemaV1;
-import net.corda.examples.workinsurance.schema.PersistentClaim;
-import net.corda.examples.workinsurance.schema.PersistentInsurance;
-import net.corda.examples.workinsurance.schema.PersistentWorker;
+import net.corda.examples.workinsurance.schema.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -66,6 +63,14 @@ public class InsuranceState implements QueryableState {
             List<PersistentClaim> persistentClaims = new ArrayList<>();
             if(claims != null && claims.size() > 0) {
                 for(Claim claim: claims){
+
+                    // Create a PersistentInsuranceDetail for each Claim object
+                    PersistentInsuranceDetail persistentInsuranceDetail = claim.getInsuranceDetail() == null? null: new PersistentInsuranceDetail(
+                            claim.getInsuranceDetail().getInsuranceCompanyNumber(),
+                            claim.getInsuranceDetail().getInsuranceCompanyPolicyNumber(),
+                            claim.getInsuranceDetail().getField()
+                    );
+
                     PersistentClaim persistentClaim = new PersistentClaim(
                             claim.getClaimNumber(),
                             claim.getClaimDescription(),
@@ -75,8 +80,10 @@ public class InsuranceState implements QueryableState {
                             claim.getAccidentDate(),
                             claim.getEpisodeDate(),
                             claim.getAccidentType(),
-                            claim.getModule()
+                            claim.getModule(),
+                            persistentInsuranceDetail
                     );
+
                     persistentClaims.add(persistentClaim);
                 }
             }

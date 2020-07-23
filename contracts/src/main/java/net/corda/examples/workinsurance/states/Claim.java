@@ -24,6 +24,7 @@ public class Claim {
     private final AccidentType accidentType;
     private final Module module;
     private final ClaimStatus claimStatus;
+    private final InsuranceDetail insuranceDetail;
 
     public Claim(String claimNumber,
                  String claimDescription,
@@ -33,7 +34,8 @@ public class Claim {
                  Date accidentDate,
                  Date episodeDate,
                  AccidentType accidentType,
-                 Module module){
+                 Module module,
+                 InsuranceDetail insuranceDetail){
         this.claimNumber = claimNumber;
         this.claimDescription = claimDescription;
         this.claimAmount = claimAmount;
@@ -43,6 +45,7 @@ public class Claim {
         this.episodeDate = episodeDate;
         this.accidentType = accidentType;
         this.module = module;
+        this.insuranceDetail = insuranceDetail;
     }
 
     public String getClaimNumber() {
@@ -68,4 +71,6 @@ public class Claim {
     public AccidentType getAccidentType() { return accidentType; }
 
     public Module getModule() { return module; }
+
+    public InsuranceDetail getInsuranceDetail() { return insuranceDetail; }
 }

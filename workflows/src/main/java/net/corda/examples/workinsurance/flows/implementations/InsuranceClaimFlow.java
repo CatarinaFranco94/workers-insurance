@@ -53,7 +53,7 @@ public class InsuranceClaimFlow {
 
             Claim claim = new Claim(claimInfo.getClaimNumber(), claimInfo.getClaimDescription(),
                     claimInfo.getClaimAmount(), this.getNextState(), claimInfo.getInternalPolicyNo(), claimInfo.getAccidentDate(),
-                    claimInfo.getEpisodeDate(), claimInfo.getAccidentType(), claimInfo.getModule());
+                    claimInfo.getEpisodeDate(), claimInfo.getAccidentType(), claimInfo.getModule(), null);
             InsuranceState input = inputStateAndRef.getState().getData();
 
             List<Claim> claims = new ArrayList<>();

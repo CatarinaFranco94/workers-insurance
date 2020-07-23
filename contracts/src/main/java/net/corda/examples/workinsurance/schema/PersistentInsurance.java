@@ -27,7 +27,7 @@ public class PersistentInsurance extends PersistentState implements Serializable
     @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumns({
             @JoinColumn(name = "output_index", referencedColumnName = "output_index"),
-            @JoinColumn(name = "transaction_id", referencedColumnName = "transaction_id"),
+            @JoinColumn(name = "transaction_id", referencedColumnName = "transaction_id")
     })
     private List<PersistentClaim> claims;
 

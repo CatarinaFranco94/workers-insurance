@@ -9,8 +9,10 @@ import net.corda.core.transactions.TransactionBuilder;
 import net.corda.examples.workinsurance.contracts.InsuranceContract;
 import net.corda.examples.workinsurance.flows.models.ClaimInfo;
 import net.corda.examples.workinsurance.flows.interfaces.IInsuranceClaimState;
+import net.corda.examples.workinsurance.flows.models.InsuranceDetailInfo;
 import net.corda.examples.workinsurance.states.Claim;
 import net.corda.examples.workinsurance.enums.ClaimStatus;
+import net.corda.examples.workinsurance.states.InsuranceDetail;
 import net.corda.examples.workinsurance.states.InsuranceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +28,18 @@ public class InsuranceAcceptanceClaimFlow {
     @StartableByRPC
     public static class InsuranceAcceptanceClaimInitiator extends FlowLogic<SignedTransaction> implements IInsuranceClaimState {
 
-        private final ClaimInfo claimInfo;
+        private final InsuranceDetailInfo insuranceDetailInfo;
         private final String policyNumber;
+        private final String claimNumber;
 
         private final static Logger logger = LoggerFactory.getLogger(InsuranceAcceptanceClaimInitiator.class);
 
         // TO DO :: Mudar ESTE input - da claimInfo so preciso do ClaimNumber, por isso criar novo obj
         // que tenha o claimNumber e os campos que vao ser necessarios acrescentar para uma acceptance
-        public InsuranceAcceptanceClaimInitiator(ClaimInfo claimInfo, String policyNumber) {
-            this.claimInfo = claimInfo;
+        public InsuranceAcceptanceClaimInitiator(InsuranceDetailInfo insuranceDetailInfo, String policyNumber, String claimNumber) {
+            this.insuranceDetailInfo = insuranceDetailInfo;
             this.policyNumber = policyNumber;
+            this.claimNumber = claimNumber;
         }
 
         @Suspendable
@@ -54,12 +58,18 @@ public class InsuranceAcceptanceClaimFlow {
             }).findAny().orElseThrow(() -> new IllegalArgumentException("Policy Not Found"));
 
             Claim inputClaim = inputStateAndRef.getState().getData().getClaims().stream().filter(correspondentClaim ->
-                correspondentClaim.getClaimNumber().equals(claimInfo.getClaimNumber()) && correspondentClaim.getClaimStatus().equals(this.getPreviousState())
+                correspondentClaim.getClaimNumber().equals(claimNumber) && correspondentClaim.getClaimStatus().equals(this.getPreviousState())
             ).findAny().orElseThrow(() -> new IllegalArgumentException("Proposed Claim Not Found"));
 
-            Claim claim = new Claim(claimInfo.getClaimNumber(), inputClaim.getClaimDescription(),
+            InsuranceDetail insuranceDetail = new InsuranceDetail(
+                    insuranceDetailInfo.getInsuranceCompanyNumber(),
+                    insuranceDetailInfo.getInsuranceCompanyPolicyNumber(),
+                    insuranceDetailInfo.getField()
+            );
+
+            Claim claim = new Claim(claimNumber, inputClaim.getClaimDescription(),
                     inputClaim.getClaimAmount(), this.getNextState(), inputClaim.getInternalPolicyNo(),
-                    inputClaim.getAccidentDate(), inputClaim.getEpisodeDate(), inputClaim.getAccidentType(), inputClaim.getModule());
+                    inputClaim.getAccidentDate(), inputClaim.getEpisodeDate(), inputClaim.getAccidentType(), inputClaim.getModule(), insuranceDetail);
 
             InsuranceState input = inputStateAndRef.getState().getData();
 

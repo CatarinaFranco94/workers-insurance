@@ -59,7 +59,7 @@ public class InsuranceRejectClaimFlow {
 
             Claim claim = new Claim(claimInfo.getClaimNumber(), inputClaim.getClaimDescription(),
                     inputClaim.getClaimAmount(), this.getNextState(), inputClaim.getInternalPolicyNo(),
-                    inputClaim.getAccidentDate(), inputClaim.getEpisodeDate(), inputClaim.getAccidentType(), inputClaim.getModule());
+                    inputClaim.getAccidentDate(), inputClaim.getEpisodeDate(), inputClaim.getAccidentType(), inputClaim.getModule(), null);
 
             InsuranceState input = inputStateAndRef.getState().getData();
 

@@ -7,6 +7,7 @@ import net.corda.examples.workinsurance.flows.implementations.InsuranceClaimFlow
 import net.corda.examples.workinsurance.flows.implementations.InsuranceRejectClaimFlow;
 import net.corda.examples.workinsurance.flows.implementations.IssueInsuranceFlow;
 import net.corda.examples.workinsurance.flows.models.ClaimInfo;
+import net.corda.examples.workinsurance.flows.models.InsuranceDetailInfo;
 import net.corda.examples.workinsurance.flows.models.InsuranceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,11 +59,11 @@ public class Controller {
      * API to trigger the Insurance Acceptance Claim flow. It accepts the claim containing details of the claim and the
      * policyNumber of the insurance in passed as path variable.
      **/
-    @PostMapping(value = "/workerInsurance/acceptanceClaim/{policyNumber}")
-    private String claimAcceptance(@RequestBody ClaimInfo claimInfo, @PathVariable String policyNumber) {
+    @PostMapping(value = "/workerInsurance/acceptanceClaim/{policyNumber}/{claimNumber}")
+    private String claimAcceptance(@RequestBody InsuranceDetailInfo insuranceDetailInfo, @PathVariable String policyNumber, @PathVariable String claimNumber) {
 
         // Trigger InsuranceClaimInitiator flow.
-        proxy.startFlowDynamic(InsuranceAcceptanceClaimFlow.InsuranceAcceptanceClaimInitiator.class, claimInfo, policyNumber);
+        proxy.startFlowDynamic(InsuranceAcceptanceClaimFlow.InsuranceAcceptanceClaimInitiator.class, insuranceDetailInfo, policyNumber, claimNumber);
         return "Insurance Acceptance Claim Completed";
     }
 

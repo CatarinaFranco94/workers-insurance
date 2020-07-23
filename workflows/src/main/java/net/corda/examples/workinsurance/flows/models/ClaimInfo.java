@@ -2,7 +2,6 @@ package net.corda.examples.workinsurance.flows.models;
 
 import net.corda.core.serialization.CordaSerializable;
 import net.corda.examples.workinsurance.enums.AccidentType;
-import net.corda.examples.workinsurance.enums.ClaimStatus;
 import net.corda.examples.workinsurance.enums.Module;
 
 import java.util.Date;

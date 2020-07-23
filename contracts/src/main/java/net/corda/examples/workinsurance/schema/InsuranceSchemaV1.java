@@ -14,6 +14,6 @@ public class InsuranceSchemaV1 extends MappedSchema {
      */
     public InsuranceSchemaV1() {
         super(InsuranceSchemaFamily.class, 1, ImmutableList.of(PersistentInsurance.class,
-                PersistentWorker.class, PersistentClaim.class));
+                PersistentWorker.class, PersistentClaim.class, PersistentInsuranceDetail.class));
     }
 }

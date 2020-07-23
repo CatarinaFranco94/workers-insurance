@@ -17,6 +17,7 @@ import java.util.UUID;
 public class PersistentClaim {
 
     @Id private final UUID id;
+
     @Column private final String claimNumber;
 
     @Column private final String claimDescription;
@@ -38,6 +39,9 @@ public class PersistentClaim {
     @Enumerated(EnumType.STRING)
     @Column private final ClaimStatus claimStatus;
 
+    @Embedded
+    private final PersistentInsuranceDetail insuranceDetail;
+
     /**
      * Default constructor required by Hibernate
      */
@@ -52,6 +56,7 @@ public class PersistentClaim {
         this.episodeDate = null;
         this.accidentType = AccidentType.None;
         this.module = Module.None;
+        this.insuranceDetail = null;
     }
 
     public PersistentClaim(String claimNumber,
@@ -62,7 +67,8 @@ public class PersistentClaim {
                            Date accidentDate,
                            Date episodeDate,
                            AccidentType accidentType,
-                           Module module) {
+                           Module module,
+                           PersistentInsuranceDetail insuranceDetail) {
         this.id = UUID.randomUUID();
         this.claimNumber = claimNumber;
         this.claimDescription = claimDescription;
@@ -73,6 +79,7 @@ public class PersistentClaim {
         this.episodeDate = episodeDate;
         this.accidentType = accidentType;
         this.module = module;
+        this.insuranceDetail = insuranceDetail;
     }
 
     public UUID getId() {
@@ -102,4 +109,6 @@ public class PersistentClaim {
     public AccidentType getAccidentType() { return accidentType; }
 
     public Module getModule() { return module; }
+
+    public PersistentInsuranceDetail getInsuranceDetail() { return insuranceDetail; }
 }
