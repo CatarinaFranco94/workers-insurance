@@ -1,4 +1,4 @@
-package net.corda.examples.workinsurance.flows;
+package net.corda.examples.workinsurance.flows.implementations;
 
 import co.paralleluniverse.fibers.Suspendable;
 import com.google.common.collect.ImmutableList;
@@ -8,6 +8,8 @@ import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.utilities.ProgressTracker;
 import net.corda.examples.workinsurance.contracts.InsuranceContract;
+import net.corda.examples.workinsurance.flows.models.InsuranceInfo;
+import net.corda.examples.workinsurance.flows.models.WorkerInfo;
 import net.corda.examples.workinsurance.states.InsuranceState;
 import net.corda.examples.workinsurance.states.WorkerDetail;
 

@@ -1,4 +1,4 @@
-package net.corda.examples.workinsurance.flows;
+package net.corda.examples.workinsurance.flows.implementations;
 
 import co.paralleluniverse.fibers.Suspendable;
 import com.google.common.collect.ImmutableList;
@@ -7,6 +7,8 @@ import net.corda.core.flows.*;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.examples.workinsurance.contracts.InsuranceContract;
+import net.corda.examples.workinsurance.flows.models.ClaimInfo;
+import net.corda.examples.workinsurance.flows.interfaces.IInsuranceClaimState;
 import net.corda.examples.workinsurance.states.Claim;
 import net.corda.examples.workinsurance.states.ClaimStatus;
 import net.corda.examples.workinsurance.states.InsuranceState;
@@ -22,7 +24,7 @@ public class InsuranceClaimFlow {
 
     @InitiatingFlow
     @StartableByRPC
-    public static class InsuranceClaimInitiator extends FlowLogic<SignedTransaction>{
+    public static class InsuranceClaimInitiator extends FlowLogic<SignedTransaction> implements IInsuranceClaimState {
 
         private final ClaimInfo claimInfo;
         private final String policyNumber;
@@ -50,7 +52,7 @@ public class InsuranceClaimFlow {
             }).findAny().orElseThrow(() -> new IllegalArgumentException("Policy Not Found"));
 
             Claim claim = new Claim(claimInfo.getClaimNumber(), claimInfo.getClaimDescription(),
-                    claimInfo.getClaimAmount(), ClaimStatus.Proposal);
+                    claimInfo.getClaimAmount(), this.getNextState());
             InsuranceState input = inputStateAndRef.getState().getData();
 
             List<Claim> claims = new ArrayList<>();
@@ -60,10 +62,6 @@ public class InsuranceClaimFlow {
                 claims.addAll(input.getClaims());
                 claims.add(claim);
             }
-
-            logger.info("iNFOOOOO INSURER "+ input.getInsurer());
-            logger.info("iNFOOOOO INSUREE "+ input.getInsuree());
-
 
             //Create the output state
             InsuranceState output = new InsuranceState(input.getInsuredValue(),
@@ -85,6 +83,16 @@ public class InsuranceClaimFlow {
             // Call finality Flow
             FlowSession counterpartySession = initiateFlow(input.getInsuree());
             return subFlow(new FinalityFlow(signedTransaction, ImmutableList.of(counterpartySession)));
+        }
+
+        @Override
+        public ClaimStatus getNextState() {
+            return ClaimStatus.Proposal;
+        }
+
+        @Override
+        public ClaimStatus getPreviousState() {
+            return ClaimStatus.None;
         }
     }
 

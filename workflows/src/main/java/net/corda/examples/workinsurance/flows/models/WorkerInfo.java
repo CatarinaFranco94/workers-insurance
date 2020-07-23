@@ -1,4 +1,4 @@
-package net.corda.examples.workinsurance.flows;
+package net.corda.examples.workinsurance.flows.models;
 
 import net.corda.core.serialization.CordaSerializable;
 

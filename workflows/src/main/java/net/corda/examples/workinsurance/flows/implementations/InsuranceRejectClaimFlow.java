@@ -1,4 +1,4 @@
-package net.corda.examples.workinsurance.flows;
+package net.corda.examples.workinsurance.flows.implementations;
 
 import co.paralleluniverse.fibers.Suspendable;
 import com.google.common.collect.ImmutableList;
@@ -7,6 +7,8 @@ import net.corda.core.flows.*;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.examples.workinsurance.contracts.InsuranceContract;
+import net.corda.examples.workinsurance.flows.models.ClaimInfo;
+import net.corda.examples.workinsurance.flows.interfaces.IInsuranceClaimState;
 import net.corda.examples.workinsurance.states.Claim;
 import net.corda.examples.workinsurance.states.ClaimStatus;
 import net.corda.examples.workinsurance.states.InsuranceState;
@@ -16,22 +18,22 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InsuranceAcceptanceClaimFlow {
+public class InsuranceRejectClaimFlow {
 
-    private InsuranceAcceptanceClaimFlow(){}
+    private InsuranceRejectClaimFlow(){}
 
     @InitiatingFlow
     @StartableByRPC
-    public static class InsuranceAcceptanceClaimInitiator extends FlowLogic<SignedTransaction> {
+    public static class InsuranceRejectClaimInitiator extends FlowLogic<SignedTransaction> implements IInsuranceClaimState {
 
         private final ClaimInfo claimInfo;
         private final String policyNumber;
 
-        private final static Logger logger = LoggerFactory.getLogger(InsuranceAcceptanceClaimInitiator.class);
+        private final static Logger logger = LoggerFactory.getLogger(InsuranceRejectClaimInitiator.class);
 
         // TO DO :: Mudar ESTE input - da claimInfo so preciso do ClaimNumber, por isso criar novo obj
-        // que tenha o claimNumber e os campos que vao ser necessarios acrescentar para uma acceptance
-        public InsuranceAcceptanceClaimInitiator(ClaimInfo claimInfo, String policyNumber) {
+        // que tenha o claimNumber e os campos que vao ser necessarios acrescentar para um reject
+        public InsuranceRejectClaimInitiator(ClaimInfo claimInfo, String policyNumber) {
             this.claimInfo = claimInfo;
             this.policyNumber = policyNumber;
         }
@@ -56,7 +58,7 @@ public class InsuranceAcceptanceClaimFlow {
             ).findAny().orElseThrow(() -> new IllegalArgumentException("Proposed Claim Not Found"));
 
             Claim claim = new Claim(claimInfo.getClaimNumber(), inputClaim.getClaimDescription(),
-                    inputClaim.getClaimAmount(), ClaimStatus.Accepted);
+                    inputClaim.getClaimAmount(), this.getNextState());
             InsuranceState input = inputStateAndRef.getState().getData();
 
             List<Claim> claims = new ArrayList<>();
@@ -76,7 +78,7 @@ public class InsuranceAcceptanceClaimFlow {
             TransactionBuilder transactionBuilder = new TransactionBuilder(inputStateAndRef.getState().getNotary())
                     .addInputState(inputStateAndRef)
                     .addOutputState(output, InsuranceContract.ID)
-                    .addCommand(new InsuranceContract.Commands.AcceptClaim(), ImmutableList.of(getOurIdentity().getOwningKey()));
+                    .addCommand(new InsuranceContract.Commands.RejectClaim(), ImmutableList.of(getOurIdentity().getOwningKey()));
 
             // Verify the transaction
             transactionBuilder.verify(getServiceHub());
@@ -88,14 +90,24 @@ public class InsuranceAcceptanceClaimFlow {
             FlowSession counterpartySession = initiateFlow(input.getInsuree());
             return subFlow(new FinalityFlow(signedTransaction, ImmutableList.of(counterpartySession)));
         }
+
+        @Override
+        public ClaimStatus getNextState() {
+            return ClaimStatus.Rejected;
+        }
+
+        @Override
+        public ClaimStatus getPreviousState() {
+            return ClaimStatus.Proposal;
+        }
     }
 
-    @InitiatedBy(InsuranceAcceptanceClaimInitiator.class)
-    public static class InsuranceAcceptanceClaimResponder extends FlowLogic<SignedTransaction> {
+    @InitiatedBy(InsuranceRejectClaimInitiator.class)
+    public static class InsuranceRejectClaimResponder extends FlowLogic<SignedTransaction> {
 
         private FlowSession counterpartySession;
 
-        public InsuranceAcceptanceClaimResponder(FlowSession counterpartySession) {
+        public InsuranceRejectClaimResponder(FlowSession counterpartySession) {
             this.counterpartySession = counterpartySession;
         }
 

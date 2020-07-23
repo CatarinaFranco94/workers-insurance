@@ -2,7 +2,12 @@ package net.corda.examples.workinsurance.webserver;
 
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
-import net.corda.examples.workinsurance.flows.*;
+import net.corda.examples.workinsurance.flows.implementations.InsuranceAcceptanceClaimFlow;
+import net.corda.examples.workinsurance.flows.implementations.InsuranceClaimFlow;
+import net.corda.examples.workinsurance.flows.implementations.InsuranceRejectClaimFlow;
+import net.corda.examples.workinsurance.flows.implementations.IssueInsuranceFlow;
+import net.corda.examples.workinsurance.flows.models.ClaimInfo;
+import net.corda.examples.workinsurance.flows.models.InsuranceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
