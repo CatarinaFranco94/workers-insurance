@@ -5,7 +5,7 @@ import net.corda.core.contracts.CommandWithParties;
 import net.corda.core.contracts.Contract;
 import net.corda.core.transactions.LedgerTransaction;
 import net.corda.examples.workinsurance.states.Claim;
-import net.corda.examples.workinsurance.states.ClaimStatus;
+import net.corda.examples.workinsurance.enums.ClaimStatus;
 import net.corda.examples.workinsurance.states.InsuranceState;
 
 import java.util.List;

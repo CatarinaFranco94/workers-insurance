@@ -10,7 +10,7 @@ import net.corda.examples.workinsurance.contracts.InsuranceContract;
 import net.corda.examples.workinsurance.flows.models.ClaimInfo;
 import net.corda.examples.workinsurance.flows.interfaces.IInsuranceClaimState;
 import net.corda.examples.workinsurance.states.Claim;
-import net.corda.examples.workinsurance.states.ClaimStatus;
+import net.corda.examples.workinsurance.enums.ClaimStatus;
 import net.corda.examples.workinsurance.states.InsuranceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,9 @@ public class InsuranceRejectClaimFlow {
             ).findAny().orElseThrow(() -> new IllegalArgumentException("Proposed Claim Not Found"));
 
             Claim claim = new Claim(claimInfo.getClaimNumber(), inputClaim.getClaimDescription(),
-                    inputClaim.getClaimAmount(), this.getNextState());
+                    inputClaim.getClaimAmount(), this.getNextState(), inputClaim.getInternalPolicyNo(),
+                    inputClaim.getAccidentDate(), inputClaim.getEpisodeDate(), inputClaim.getAccidentType(), inputClaim.getModule());
+
             InsuranceState input = inputStateAndRef.getState().getData();
 
             List<Claim> claims = new ArrayList<>();

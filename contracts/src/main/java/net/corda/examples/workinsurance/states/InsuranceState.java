@@ -70,7 +70,12 @@ public class InsuranceState implements QueryableState {
                             claim.getClaimNumber(),
                             claim.getClaimDescription(),
                             claim.getClaimAmount(),
-                            claim.getClaimStatus()
+                            claim.getClaimStatus(),
+                            claim.getInternalPolicyNo(),
+                            claim.getAccidentDate(),
+                            claim.getEpisodeDate(),
+                            claim.getAccidentType(),
+                            claim.getModule()
                     );
                     persistentClaims.add(persistentClaim);
                 }

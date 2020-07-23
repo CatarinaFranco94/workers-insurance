@@ -10,7 +10,7 @@ import net.corda.examples.workinsurance.contracts.InsuranceContract;
 import net.corda.examples.workinsurance.flows.models.ClaimInfo;
 import net.corda.examples.workinsurance.flows.interfaces.IInsuranceClaimState;
 import net.corda.examples.workinsurance.states.Claim;
-import net.corda.examples.workinsurance.states.ClaimStatus;
+import net.corda.examples.workinsurance.enums.ClaimStatus;
 import net.corda.examples.workinsurance.states.InsuranceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,8 @@ public class InsuranceClaimFlow {
             }).findAny().orElseThrow(() -> new IllegalArgumentException("Policy Not Found"));
 
             Claim claim = new Claim(claimInfo.getClaimNumber(), claimInfo.getClaimDescription(),
-                    claimInfo.getClaimAmount(), this.getNextState());
+                    claimInfo.getClaimAmount(), this.getNextState(), claimInfo.getInternalPolicyNo(), claimInfo.getAccidentDate(),
+                    claimInfo.getEpisodeDate(), claimInfo.getAccidentType(), claimInfo.getModule());
             InsuranceState input = inputStateAndRef.getState().getData();
 
             List<Claim> claims = new ArrayList<>();

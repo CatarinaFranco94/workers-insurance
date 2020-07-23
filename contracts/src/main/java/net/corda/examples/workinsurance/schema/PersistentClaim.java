@@ -1,8 +1,11 @@
 package net.corda.examples.workinsurance.schema;
 
-import net.corda.examples.workinsurance.states.ClaimStatus;
+import net.corda.examples.workinsurance.enums.AccidentType;
+import net.corda.examples.workinsurance.enums.ClaimStatus;
+import net.corda.examples.workinsurance.enums.Module;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 
@@ -15,8 +18,22 @@ public class PersistentClaim {
 
     @Id private final UUID id;
     @Column private final String claimNumber;
+
     @Column private final String claimDescription;
+
     @Column private final Integer claimAmount;
+
+    @Column private final String internalPolicyNo;
+
+    @Column private final Date accidentDate;
+
+    @Column private final Date episodeDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column private final AccidentType accidentType;
+
+    @Enumerated(EnumType.STRING)
+    @Column private final Module module;
 
     @Enumerated(EnumType.STRING)
     @Column private final ClaimStatus claimStatus;
@@ -30,14 +47,32 @@ public class PersistentClaim {
         this.claimDescription = null;
         this.claimAmount = null;
         this.claimStatus = ClaimStatus.None;
+        this.internalPolicyNo = null;
+        this.accidentDate = null;
+        this.episodeDate = null;
+        this.accidentType = AccidentType.None;
+        this.module = Module.None;
     }
 
-    public PersistentClaim(String claimNumber, String claimDescription, Integer claimAmount, ClaimStatus claimStatus) {
+    public PersistentClaim(String claimNumber,
+                           String claimDescription,
+                           int claimAmount,
+                           ClaimStatus claimStatus,
+                           String internalPolicyNo,
+                           Date accidentDate,
+                           Date episodeDate,
+                           AccidentType accidentType,
+                           Module module) {
         this.id = UUID.randomUUID();
         this.claimNumber = claimNumber;
         this.claimDescription = claimDescription;
         this.claimAmount = claimAmount;
         this.claimStatus = claimStatus;
+        this.internalPolicyNo = internalPolicyNo;
+        this.accidentDate = accidentDate;
+        this.episodeDate = episodeDate;
+        this.accidentType = accidentType;
+        this.module = module;
     }
 
     public UUID getId() {
@@ -57,4 +92,14 @@ public class PersistentClaim {
     }
 
     public ClaimStatus getClaimStatus() { return claimStatus; }
+
+    public String getInternalPolicyNo() { return internalPolicyNo; }
+
+    public Date getAccidentDate() { return accidentDate; }
+
+    public Date getEpisodeDate() { return episodeDate; }
+
+    public AccidentType getAccidentType() { return accidentType; }
+
+    public Module getModule() { return module; }
 }

@@ -1,4 +1,4 @@
-package net.corda.examples.workinsurance.states;
+package net.corda.examples.workinsurance.enums;
 
 import net.corda.core.serialization.CordaSerializable;
 
