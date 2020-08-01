@@ -1,5 +1,6 @@
 package net.corda.examples.workinsurance.schema;
 
+import net.corda.core.identity.Party;
 import net.corda.examples.workinsurance.enums.AccidentType;
 import net.corda.examples.workinsurance.enums.ClaimStatus;
 import net.corda.examples.workinsurance.enums.Module;
@@ -14,7 +15,9 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "CLAIM_DETAIL")
-public class PersistentClaim {
+public class
+
+PersistentClaim {
 
     @Id private final UUID id;
 
@@ -39,6 +42,10 @@ public class PersistentClaim {
     @Enumerated(EnumType.STRING)
     @Column private final ClaimStatus claimStatus;
 
+    @Column private final Party proposer;
+
+    @Column private final Party proposee;
+
     @Embedded
     private final PersistentInsuranceDetail insuranceDetail;
 
@@ -57,6 +64,8 @@ public class PersistentClaim {
         this.accidentType = AccidentType.None;
         this.module = Module.None;
         this.insuranceDetail = null;
+        this.proposee = null;
+        this.proposer = null;
     }
 
     public PersistentClaim(String claimNumber,
@@ -68,7 +77,9 @@ public class PersistentClaim {
                            Date episodeDate,
                            AccidentType accidentType,
                            Module module,
-                           PersistentInsuranceDetail insuranceDetail) {
+                           PersistentInsuranceDetail insuranceDetail,
+                           Party proposer,
+                           Party proposee) {
         this.id = UUID.randomUUID();
         this.claimNumber = claimNumber;
         this.claimDescription = claimDescription;
@@ -80,6 +91,8 @@ public class PersistentClaim {
         this.accidentType = accidentType;
         this.module = module;
         this.insuranceDetail = insuranceDetail;
+        this.proposer = proposer;
+        this.proposee = proposee;
     }
 
     public UUID getId() {
@@ -111,4 +124,8 @@ public class PersistentClaim {
     public Module getModule() { return module; }
 
     public PersistentInsuranceDetail getInsuranceDetail() { return insuranceDetail; }
+
+    public Party getProposer() { return proposer; }
+
+    public Party getProposee() { return proposee; }
 }

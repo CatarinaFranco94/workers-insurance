@@ -1,5 +1,6 @@
 package net.corda.examples.workinsurance.states;
 
+import net.corda.core.identity.Party;
 import net.corda.core.serialization.CordaSerializable;
 import net.corda.examples.workinsurance.enums.AccidentType;
 import net.corda.examples.workinsurance.enums.ClaimStatus;
@@ -25,6 +26,8 @@ public class Claim {
     private final Module module;
     private final ClaimStatus claimStatus;
     private final InsuranceDetail insuranceDetail;
+    private final Party proposer;
+    private final Party proposee;
 
     public Claim(String claimNumber,
                  String claimDescription,
@@ -35,7 +38,9 @@ public class Claim {
                  Date episodeDate,
                  AccidentType accidentType,
                  Module module,
-                 InsuranceDetail insuranceDetail){
+                 InsuranceDetail insuranceDetail,
+                 Party proposer,
+                 Party proposee){
         this.claimNumber = claimNumber;
         this.claimDescription = claimDescription;
         this.claimAmount = claimAmount;
@@ -46,6 +51,8 @@ public class Claim {
         this.accidentType = accidentType;
         this.module = module;
         this.insuranceDetail = insuranceDetail;
+        this.proposer = proposer;
+        this.proposee = proposee;
     }
 
     public String getClaimNumber() {
@@ -73,4 +80,8 @@ public class Claim {
     public Module getModule() { return module; }
 
     public InsuranceDetail getInsuranceDetail() { return insuranceDetail; }
+
+    public Party getProposer() { return proposer; }
+
+    public Party getProposee() { return proposee; }
 }

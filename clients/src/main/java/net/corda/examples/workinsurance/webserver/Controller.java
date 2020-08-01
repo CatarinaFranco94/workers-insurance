@@ -50,6 +50,8 @@ public class Controller {
     @PostMapping(value = "/workerInsurance/claim/{policyNumber}")
     private String claim(@RequestBody ClaimInfo claimInfo, @PathVariable String policyNumber) {
 
+        logger.warn("ENTROU CONTROLLER");
+
         // Trigger InsuranceClaimInitiator flow.
         proxy.startFlowDynamic(InsuranceClaimFlow.InsuranceClaimInitiator.class, claimInfo, policyNumber);
         return "Insurance Claim Completed";
@@ -59,11 +61,17 @@ public class Controller {
      * API to trigger the Insurance Acceptance Claim flow. It accepts the claim containing details of the claim and the
      * policyNumber of the insurance in passed as path variable.
      **/
-    @PostMapping(value = "/workerInsurance/acceptanceClaim/{policyNumber}/{claimNumber}")
-    private String claimAcceptance(@RequestBody InsuranceDetailInfo insuranceDetailInfo, @PathVariable String policyNumber, @PathVariable String claimNumber) {
+    @PostMapping(value = "/workerInsurance/acceptanceClaim/{policyNumber}/{claimNumber}/{insuree}")
+    private String claimAcceptance(@RequestBody InsuranceDetailInfo insuranceDetailInfo, @PathVariable String insuree, @PathVariable String policyNumber, @PathVariable String claimNumber) {
+
+        Set<Party> matchingParties = proxy.partiesFromName(insuree, false);
+
+        logger.warn("NOME HSP = " + insuree);
+        logger.warn("MATCHING PARTIES = " + matchingParties);
+        logger.warn("CLAIM NUMBER = " + claimNumber);
 
         // Trigger InsuranceClaimInitiator flow.
-        proxy.startFlowDynamic(InsuranceAcceptanceClaimFlow.InsuranceAcceptanceClaimInitiator.class, insuranceDetailInfo, policyNumber, claimNumber);
+        proxy.startFlowDynamic(InsuranceAcceptanceClaimFlow.InsuranceAcceptanceClaimInitiator.class, insuranceDetailInfo, policyNumber, claimNumber, matchingParties.iterator().next());
         return "Insurance Acceptance Claim Completed";
     }
 
@@ -71,11 +79,13 @@ public class Controller {
      * API to trigger the Insurance Claim flow. It accepts the claim containing details of the claim and the
      * policyNumber of the insurance in passed as path variable.
      **/
-    @PostMapping(value = "/workerInsurance/rejectClaim/{policyNumber}")
-    private String claimReject(@RequestBody ClaimInfo claimInfo, @PathVariable String policyNumber) {
+    @PostMapping(value = "/workerInsurance/rejectClaim/{policyNumber}/{claimNumber}/{insuree}")
+    private String claimReject(@PathVariable String insuree, @PathVariable String policyNumber, @PathVariable String claimNumber) {
+
+        Set<Party> matchingParties = proxy.partiesFromName(insuree, false);
 
         // Trigger InsuranceClaimInitiator flow.
-        proxy.startFlowDynamic(InsuranceRejectClaimFlow.InsuranceRejectClaimInitiator.class, claimInfo, policyNumber);
+        proxy.startFlowDynamic(InsuranceRejectClaimFlow.InsuranceRejectClaimInitiator.class, policyNumber, claimNumber, matchingParties.iterator().next());
         return "Insurance Reject Claim Completed";
     }
 

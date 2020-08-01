@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable;
 import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.flows.*;
+import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.examples.workinsurance.contracts.InsuranceContract;
@@ -26,16 +27,18 @@ public class InsuranceRejectClaimFlow {
     @StartableByRPC
     public static class InsuranceRejectClaimInitiator extends FlowLogic<SignedTransaction> implements IInsuranceClaimState {
 
-        private final ClaimInfo claimInfo;
         private final String policyNumber;
+        private final String claimNumber;
+        private final Party insuree;
 
         private final static Logger logger = LoggerFactory.getLogger(InsuranceRejectClaimInitiator.class);
 
         // TO DO :: Mudar ESTE input - da claimInfo so preciso do ClaimNumber, por isso criar novo obj
         // que tenha o claimNumber e os campos que vao ser necessarios acrescentar para um reject
-        public InsuranceRejectClaimInitiator(ClaimInfo claimInfo, String policyNumber) {
-            this.claimInfo = claimInfo;
+        public InsuranceRejectClaimInitiator(String policyNumber, String claimNumber, Party insuree) {
             this.policyNumber = policyNumber;
+            this.claimNumber = claimNumber;
+            this.insuree = insuree;
         }
 
         @Suspendable
@@ -50,16 +53,19 @@ public class InsuranceRejectClaimFlow {
 
             StateAndRef<InsuranceState> inputStateAndRef = insuranceStateAndRefs.stream().filter(insuranceStateAndRef -> {
                 InsuranceState insuranceState = insuranceStateAndRef.getState().getData();
-                return insuranceState.getWorkerDetail().getPolicyNumber().equals(policyNumber);
-            }).findAny().orElseThrow(() -> new IllegalArgumentException("Policy Not Found"));
+                return insuranceState.getWorkerDetail().getPolicyNumber().equals(policyNumber) && insuranceState.getInsuree().equals(insuree);
+            }).findAny().orElseThrow(() -> new IllegalArgumentException("Insuree Policy Not Found"));
 
             Claim inputClaim = inputStateAndRef.getState().getData().getClaims().stream().filter(correspondentClaim ->
-                correspondentClaim.getClaimNumber().equals(claimInfo.getClaimNumber()) && correspondentClaim.getClaimStatus().equals(ClaimStatus.Proposal)
-            ).findAny().orElseThrow(() -> new IllegalArgumentException("Proposed Claim Not Found"));
+                    correspondentClaim.getClaimNumber().equals(claimNumber) && correspondentClaim.getClaimStatus().equals(this.getPreviousState())
+            ).findAny().orElseThrow(() -> new IllegalArgumentException("Proposed Claim Not In Proposal State"));
 
-            Claim claim = new Claim(claimInfo.getClaimNumber(), inputClaim.getClaimDescription(),
+            Party proposer = getOurIdentity();
+
+            Claim claim = new Claim(claimNumber, inputClaim.getClaimDescription(),
                     inputClaim.getClaimAmount(), this.getNextState(), inputClaim.getInternalPolicyNo(),
-                    inputClaim.getAccidentDate(), inputClaim.getEpisodeDate(), inputClaim.getAccidentType(), inputClaim.getModule(), null);
+                    inputClaim.getAccidentDate(), inputClaim.getEpisodeDate(), inputClaim.getAccidentType(),
+                    inputClaim.getModule(), null, proposer, insuree);
 
             InsuranceState input = inputStateAndRef.getState().getData();
 

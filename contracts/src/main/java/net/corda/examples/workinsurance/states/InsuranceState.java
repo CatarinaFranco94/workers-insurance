@@ -81,7 +81,9 @@ public class InsuranceState implements QueryableState {
                             claim.getEpisodeDate(),
                             claim.getAccidentType(),
                             claim.getModule(),
-                            persistentInsuranceDetail
+                            persistentInsuranceDetail,
+                            claim.getProposer(),
+                            claim.getProposee()
                     );
 
                     persistentClaims.add(persistentClaim);

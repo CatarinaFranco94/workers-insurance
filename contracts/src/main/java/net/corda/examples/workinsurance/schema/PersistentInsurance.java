@@ -19,7 +19,7 @@ public class PersistentInsurance extends PersistentState implements Serializable
 
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumns({
-            @JoinColumn(name = "id", referencedColumnName = "id"),
+            @JoinColumn(name = "worker_id", referencedColumnName = "id"),
             @JoinColumn(name = "policyNumber", referencedColumnName = "policyNumber"),
     })
     private final PersistentWorker worker;

@@ -4,8 +4,10 @@ import co.paralleluniverse.fibers.Suspendable;
 import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.flows.*;
+import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
+import net.corda.core.utilities.ProgressTracker;
 import net.corda.examples.workinsurance.contracts.InsuranceContract;
 import net.corda.examples.workinsurance.flows.models.ClaimInfo;
 import net.corda.examples.workinsurance.flows.interfaces.IInsuranceClaimState;
@@ -26,10 +28,12 @@ public class InsuranceClaimFlow {
     @StartableByRPC
     public static class InsuranceClaimInitiator extends FlowLogic<SignedTransaction> implements IInsuranceClaimState {
 
+        private final ProgressTracker progressTracker = new ProgressTracker();
+
         private final ClaimInfo claimInfo;
         private final String policyNumber;
 
-        private final static Logger logger = LoggerFactory.getLogger(InsuranceClaimInitiator.class);
+        private final static Logger logger = LoggerFactory.getLogger(InsuranceClaimFlow.InsuranceClaimInitiator.class);
 
         public InsuranceClaimInitiator(ClaimInfo claimInfo, String policyNumber) {
             this.claimInfo = claimInfo;
@@ -37,8 +41,17 @@ public class InsuranceClaimFlow {
         }
 
         @Override
+        public ProgressTracker getProgressTracker() {
+            return progressTracker;
+        }
+
+        @Override
         @Suspendable
         public SignedTransaction call() throws FlowException {
+
+            logger.warn("ENTROU NO FLOW");
+
+            Party insureeOurIdentity = getOurIdentity();
 
             // Query the vault to fetch a list of all Insurance state, and filter the results based on the policyNumber
             // to fetch the desired Insurance state from the vault. This filtered state would be used as input to the
@@ -48,12 +61,13 @@ public class InsuranceClaimFlow {
 
             StateAndRef<InsuranceState> inputStateAndRef = insuranceStateAndRefs.stream().filter(insuranceStateAndRef -> {
                 InsuranceState insuranceState = insuranceStateAndRef.getState().getData();
-                return insuranceState.getWorkerDetail().getPolicyNumber().equals(policyNumber);
-            }).findAny().orElseThrow(() -> new IllegalArgumentException("Policy Not Found"));
+                return insuranceState.getWorkerDetail().getPolicyNumber().equals(policyNumber) && insuranceState.getInsuree().equals(insureeOurIdentity);
+            }).findAny().orElseThrow(() -> new IllegalArgumentException("Insuree Policy Not Found"));
 
             Claim claim = new Claim(claimInfo.getClaimNumber(), claimInfo.getClaimDescription(),
                     claimInfo.getClaimAmount(), this.getNextState(), claimInfo.getInternalPolicyNo(), claimInfo.getAccidentDate(),
-                    claimInfo.getEpisodeDate(), claimInfo.getAccidentType(), claimInfo.getModule(), null);
+                    claimInfo.getEpisodeDate(), claimInfo.getAccidentType(), claimInfo.getModule(), null,
+                    insureeOurIdentity, inputStateAndRef.getState().getData().getInsurer());
             InsuranceState input = inputStateAndRef.getState().getData();
 
             List<Claim> claims = new ArrayList<>();
@@ -82,7 +96,7 @@ public class InsuranceClaimFlow {
             SignedTransaction signedTransaction = getServiceHub().signInitialTransaction(transactionBuilder);
 
             // Call finality Flow
-            FlowSession counterpartySession = initiateFlow(input.getInsuree());
+            FlowSession counterpartySession = initiateFlow(input.getInsurer());
             return subFlow(new FinalityFlow(signedTransaction, ImmutableList.of(counterpartySession)));
         }
 

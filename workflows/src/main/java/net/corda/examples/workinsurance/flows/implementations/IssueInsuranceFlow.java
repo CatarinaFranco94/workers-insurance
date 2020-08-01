@@ -12,6 +12,8 @@ import net.corda.examples.workinsurance.flows.models.InsuranceInfo;
 import net.corda.examples.workinsurance.flows.models.WorkerInfo;
 import net.corda.examples.workinsurance.states.InsuranceState;
 import net.corda.examples.workinsurance.states.WorkerDetail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IssueInsuranceFlow {
 
@@ -25,6 +27,9 @@ public class IssueInsuranceFlow {
 
         private final InsuranceInfo insuranceInfo;
         private final Party insuree;
+
+
+        private final static Logger logger = LoggerFactory.getLogger(IssueInsuranceFlow.IssueInsuranceInitiator.class);
 
         public IssueInsuranceInitiator(InsuranceInfo insuranceInfo, Party insuree) {
             this.insuranceInfo = insuranceInfo;
@@ -50,6 +55,9 @@ public class IssueInsuranceFlow {
             // final Party notary = getServiceHub().getNetworkMapCache().getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")); // METHOD 2
 
             Party insurer = getOurIdentity();
+
+            logger.warn("OUR IDENTITY = " + insurer);
+            logger.warn("INSUREE URL = " + insuree);
 
             WorkerInfo workerInfo = insuranceInfo.getWorkerInfo();
             WorkerDetail workerDetail = new WorkerDetail(workerInfo.getPolicyNumber(), workerInfo.getName(), workerInfo.getHealthNumber(), workerInfo.getPolicyHolder());

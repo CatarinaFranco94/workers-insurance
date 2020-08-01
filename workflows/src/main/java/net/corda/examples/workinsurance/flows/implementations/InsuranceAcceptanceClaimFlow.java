@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable;
 import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.flows.*;
+import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.examples.workinsurance.contracts.InsuranceContract;
@@ -31,15 +32,15 @@ public class InsuranceAcceptanceClaimFlow {
         private final InsuranceDetailInfo insuranceDetailInfo;
         private final String policyNumber;
         private final String claimNumber;
+        private final Party insuree;
 
         private final static Logger logger = LoggerFactory.getLogger(InsuranceAcceptanceClaimInitiator.class);
 
-        // TO DO :: Mudar ESTE input - da claimInfo so preciso do ClaimNumber, por isso criar novo obj
-        // que tenha o claimNumber e os campos que vao ser necessarios acrescentar para uma acceptance
-        public InsuranceAcceptanceClaimInitiator(InsuranceDetailInfo insuranceDetailInfo, String policyNumber, String claimNumber) {
+        public InsuranceAcceptanceClaimInitiator(InsuranceDetailInfo insuranceDetailInfo, String policyNumber, String claimNumber, Party insuree) {
             this.insuranceDetailInfo = insuranceDetailInfo;
             this.policyNumber = policyNumber;
             this.claimNumber = claimNumber;
+            this.insuree = insuree;
         }
 
         @Suspendable
@@ -54,12 +55,12 @@ public class InsuranceAcceptanceClaimFlow {
 
             StateAndRef<InsuranceState> inputStateAndRef = insuranceStateAndRefs.stream().filter(insuranceStateAndRef -> {
                 InsuranceState insuranceState = insuranceStateAndRef.getState().getData();
-                return insuranceState.getWorkerDetail().getPolicyNumber().equals(policyNumber);
-            }).findAny().orElseThrow(() -> new IllegalArgumentException("Policy Not Found"));
+                return insuranceState.getWorkerDetail().getPolicyNumber().equals(policyNumber) && insuranceState.getInsuree().equals(insuree);
+            }).findAny().orElseThrow(() -> new IllegalArgumentException("Insuree Policy Not Found"));
 
             Claim inputClaim = inputStateAndRef.getState().getData().getClaims().stream().filter(correspondentClaim ->
                 correspondentClaim.getClaimNumber().equals(claimNumber) && correspondentClaim.getClaimStatus().equals(this.getPreviousState())
-            ).findAny().orElseThrow(() -> new IllegalArgumentException("Proposed Claim Not Found"));
+            ).findAny().orElseThrow(() -> new IllegalArgumentException("Proposed Claim Not In Proposal State"));
 
             InsuranceDetail insuranceDetail = new InsuranceDetail(
                     insuranceDetailInfo.getInsuranceCompanyNumber(),
@@ -67,9 +68,12 @@ public class InsuranceAcceptanceClaimFlow {
                     insuranceDetailInfo.getField()
             );
 
+            Party proposer = getOurIdentity();
+
             Claim claim = new Claim(claimNumber, inputClaim.getClaimDescription(),
                     inputClaim.getClaimAmount(), this.getNextState(), inputClaim.getInternalPolicyNo(),
-                    inputClaim.getAccidentDate(), inputClaim.getEpisodeDate(), inputClaim.getAccidentType(), inputClaim.getModule(), insuranceDetail);
+                    inputClaim.getAccidentDate(), inputClaim.getEpisodeDate(), inputClaim.getAccidentType(),
+                    inputClaim.getModule(), insuranceDetail, proposer, insuree);
 
             InsuranceState input = inputStateAndRef.getState().getData();
 
@@ -99,7 +103,7 @@ public class InsuranceAcceptanceClaimFlow {
             SignedTransaction signedTransaction = getServiceHub().signInitialTransaction(transactionBuilder);
 
             // Call finality Flow
-            FlowSession counterpartySession = initiateFlow(input.getInsuree());
+            FlowSession counterpartySession = initiateFlow(insuree);
             return subFlow(new FinalityFlow(signedTransaction, ImmutableList.of(counterpartySession)));
         }
 
