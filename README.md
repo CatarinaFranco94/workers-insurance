@@ -24,9 +24,27 @@ Open a terminal and go to the project root directory and type: (to deploy the no
 ```
 gradlew clean deployNodes
 ```
-Then type: (to run the nodes)
+Start the nodes by typing:
 ```
 call build/nodes/runnodes.bat
 ```
-To start the localhost:8080:
-gradlew bootRun
+Start a Spring Boot server for each node by opening a terminal/command prompt for each node and typing:
+```
+gradlew run_InsurerAGS_Server
+```
+```
+gradlew run_InsureeHSA_Server
+```
+```
+gradlew run_InsureeHSJ_Server
+```
+
+
+### Connecting to the Database
+
+The JDBC url to connect to the database would be printed in the console in node startup. Use the url to connect to the database using a suitable client. 
+The default username is 'sa' and password is '' (blank).
+
+You could download H2 Console to connect to h2 database here:
+http://www.h2database.com/html/download.html
+
