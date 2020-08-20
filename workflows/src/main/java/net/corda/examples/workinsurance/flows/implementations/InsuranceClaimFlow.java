@@ -9,6 +9,8 @@ import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.utilities.ProgressTracker;
 import net.corda.examples.workinsurance.contracts.InsuranceContract;
+import net.corda.examples.workinsurance.enums.AccidentType;
+import net.corda.examples.workinsurance.enums.Module;
 import net.corda.examples.workinsurance.flows.models.ClaimInfo;
 import net.corda.examples.workinsurance.flows.interfaces.IInsuranceClaimState;
 import net.corda.examples.workinsurance.states.Claim;
@@ -66,7 +68,7 @@ public class InsuranceClaimFlow {
 
             Claim claim = new Claim(claimInfo.getClaimNumber(), claimInfo.getClaimDescription(),
                     claimInfo.getClaimAmount(), this.getNextState(), claimInfo.getInternalPolicyNo(), claimInfo.getAccidentDate(),
-                    claimInfo.getEpisodeDate(), claimInfo.getAccidentType(), claimInfo.getModule(), null,
+                    claimInfo.getEpisodeDate(), AccidentType.WorkAccident, Module.valueOf(claimInfo.getModule()), null,
                     insureeOurIdentity, inputStateAndRef.getState().getData().getInsurer());
             InsuranceState input = inputStateAndRef.getState().getData();
 

@@ -22,19 +22,17 @@ import java.util.List;
 public class InsuranceState implements QueryableState {
 
     // Represents the asset which is insured.
-    // This will be used to demonstrate one-to-one relationship
     private final WorkerDetail workerDetail;
 
     // Fields related to the insurance state.
     private final long insuredValue;
     private final int duration;
 
+    // Insurance claims made against the insurance policy
+    private final List<Claim> claims;
+
     private final Party insurer;
     private final Party insuree;
-
-    // Insurance claims made against the insurace policy
-    // This will be used to demonstrate one-to-many relationship
-    private final List<Claim> claims;
 
     public InsuranceState(long insuredValue, int duration, Party insurer,
                           Party insuree, WorkerDetail workerDetail, List<Claim> claims) {

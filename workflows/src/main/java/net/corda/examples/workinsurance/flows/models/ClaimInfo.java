@@ -15,7 +15,7 @@ public class ClaimInfo {
     private final Date accidentDate;
     private final Date episodeDate;
     private final AccidentType accidentType;
-    private final Module module;
+    private final String module;
 
     public ClaimInfo(String claimNumber,
                      String claimDescription,
@@ -24,7 +24,7 @@ public class ClaimInfo {
                      Date accidentDate,
                      Date episodeDate,
                      AccidentType accidentType,
-                     Module module){
+                     String module){
         this.claimNumber = claimNumber;
         this.claimDescription = claimDescription;
         this.claimAmount = claimAmount;
@@ -63,7 +63,7 @@ public class ClaimInfo {
         return accidentType;
     }
 
-    public Module getModule() {
+    public String getModule() {
         return module;
     }
 }
