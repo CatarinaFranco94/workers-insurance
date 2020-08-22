@@ -51,8 +51,6 @@ public class InsuranceClaimFlow {
         @Suspendable
         public SignedTransaction call() throws FlowException {
 
-            logger.warn("ENTROU NO FLOW");
-
             Party insureeOurIdentity = getOurIdentity();
 
             // Query the vault to fetch a list of all Insurance state, and filter the results based on the policyNumber

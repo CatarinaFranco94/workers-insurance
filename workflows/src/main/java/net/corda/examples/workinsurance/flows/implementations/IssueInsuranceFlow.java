@@ -56,9 +56,6 @@ public class IssueInsuranceFlow {
 
             Party insurer = getOurIdentity();
 
-            logger.warn("OUR IDENTITY = " + insurer);
-            logger.warn("INSUREE URL = " + insuree);
-
             WorkerInfo workerInfo = insuranceInfo.getWorkerInfo();
             WorkerDetail workerDetail = new WorkerDetail(workerInfo.getPolicyNumber(), workerInfo.getName(), workerInfo.getHealthNumber(), workerInfo.getPolicyHolder());
 

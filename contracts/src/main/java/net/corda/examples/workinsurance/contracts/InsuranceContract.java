@@ -68,6 +68,15 @@ public class InsuranceContract implements Contract {
     private void verifyInsuranceIssue(LedgerTransaction tx) {
         requireThat(req -> {
             req.using("Transaction must have no input states.", tx.getInputStates().isEmpty());
+            req.using("Transaction must have output states.", (!tx.getOutputStates().isEmpty()));
+            req.using("Transaction must have one output state.", tx.getOutputStates().size() == 1);
+            req.using("Transaction output must be an InsuranceState", tx.getOutputStates().get(0) instanceof InsuranceState);
+            req.using("Transaction must have a command", tx.getCommands().size() == 1);
+            req.using("Transaction command must be Issue Command", tx.getCommands().get(0).getValue() instanceof InsuranceContract.Commands.IssueInsurance);
+
+            InsuranceState insuranceState = (InsuranceState) tx.getOutputStates().get(0);
+
+            req.using("Issuer must be a required signer", tx.getCommands().get(0).getSigners().contains(insuranceState.getInsurer().getOwningKey()));
             return null;
         });
     }
@@ -75,6 +84,17 @@ public class InsuranceContract implements Contract {
     private void verifyClaimCreation(LedgerTransaction tx) {
         requireThat(req -> {
             req.using("Insurance transaction must have input states, the insurance police", (!tx.getInputStates().isEmpty()));
+            req.using("Insurance transaction must have one input state", tx.getInputStates().size() == 1);
+            req.using("Insurance input transaction must be InsuranceState", tx.getInputStates().get(0) instanceof InsuranceState);
+            req.using("Insurance transaction must have output state", (!tx.getOutputStates().isEmpty()));
+            req.using("Insurance transaction must have one output state", tx.getOutputStates().size() == 1);
+            req.using("Insurance output transaction must be an InsuranceState", tx.getOutputStates().get(0) instanceof InsuranceState);
+            req.using("Insurance transaction must have a command", tx.getCommands().size() == 1);
+            req.using("Insurance transaction command must be a AddClaim command", tx.getCommands().get(0).getValue() instanceof InsuranceContract.Commands.AddClaim);
+
+            InsuranceState insuranceState = (InsuranceState) tx.getOutputStates().get(0);
+
+            req.using("Issuer must be a required signer", tx.getCommands().get(0).getSigners().contains(insuranceState.getInsuree().getOwningKey()));
             return null;
         });
     }
