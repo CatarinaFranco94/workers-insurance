@@ -2,6 +2,7 @@ package net.corda.examples.workinsurance.flows.implementations;
 
 import co.paralleluniverse.fibers.Suspendable;
 import com.google.common.collect.ImmutableList;
+import net.corda.core.contracts.ContractState;
 import net.corda.core.flows.*;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
@@ -14,6 +15,9 @@ import net.corda.examples.workinsurance.states.InsuranceState;
 import net.corda.examples.workinsurance.states.WorkerDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Collections.singletonList;
+import static net.corda.core.contracts.ContractsDSL.requireThat;
 
 public class IssueInsuranceFlow {
 
@@ -66,22 +70,26 @@ public class IssueInsuranceFlow {
             // Build the transaction
             TransactionBuilder builder = new TransactionBuilder(notary)
                 .addOutputState(insurance, InsuranceContract.ID)
-                .addCommand(new InsuranceContract.Commands.IssueInsurance(), ImmutableList.of(insurer.getOwningKey()));
+                .addCommand(new InsuranceContract.Commands.IssueInsurance(), ImmutableList.of(insurer.getOwningKey(), insuree.getOwningKey()));
 
             // Verify the transaction
             builder.verify(getServiceHub());
 
-            // Sign the transaction
-            SignedTransaction selfSignedTransaction = getServiceHub().signInitialTransaction(builder);
+            FlowSession session = initiateFlow(insuree);
 
-            // Call finality Flow
-            FlowSession ownerSession = initiateFlow(insuree);
-            return subFlow(new FinalityFlow(selfSignedTransaction, ImmutableList.of(ownerSession)));
+            // We sign the transaction with our private key, making it immutable.
+            SignedTransaction signedTransaction = getServiceHub().signInitialTransaction(builder);
+
+            // The counter party signs the transaction
+            SignedTransaction fullySignedTransaction = subFlow(new CollectSignaturesFlow(signedTransaction, singletonList(session)));
+
+            // We get the transaction notarised and recorded automatically by the platform.
+            return subFlow(new FinalityFlow(fullySignedTransaction, singletonList(session)));
         }
     }
 
     @InitiatedBy(IssueInsuranceInitiator.class)
-    public static class IssueInsuranceResponder extends FlowLogic<SignedTransaction> {
+    public static class IssueInsuranceResponder extends FlowLogic<Void> {
 
         private FlowSession counterpartySession;
 
@@ -91,8 +99,22 @@ public class IssueInsuranceFlow {
 
         @Override
         @Suspendable
-        public SignedTransaction call() throws FlowException {
-            return subFlow(new ReceiveFinalityFlow(counterpartySession));
+        public Void call() throws FlowException {
+            SignedTransaction signedTransaction = subFlow(new SignTransactionFlow(counterpartySession) {
+                @Suspendable
+                @Override
+                protected void checkTransaction(SignedTransaction stx) throws FlowException {
+                    requireThat(require -> {
+                        ContractState output = stx.getTx().getOutputs().get(0).getData();
+                        require.using("This must be an InsuranceState transaction.", output instanceof InsuranceState);
+                        InsuranceState insuranceState = (InsuranceState) output;
+                        require.using("Transaction must have valid worker detail", insuranceState.getWorkerDetail() != null);
+                        return null;
+                    });
+                }
+            });
+            subFlow(new ReceiveFinalityFlow(counterpartySession, signedTransaction.getId()));
+            return null;
         }
     }
 }
