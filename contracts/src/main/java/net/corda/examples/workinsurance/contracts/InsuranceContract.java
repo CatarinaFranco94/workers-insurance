@@ -45,22 +45,35 @@ public class InsuranceContract implements Contract {
     }
 
     private void verifyClaimReject(LedgerTransaction tx) {
-        InsuranceState inputState = (InsuranceState)tx.getInput(0);
-        InsuranceState outputState = (InsuranceState) tx.getOutput(0);
-
-        Claim outputClaim = outputState.getClaims().get(outputState.getClaims().size() -1 );
-
-        List<Claim> inputClaimListWithOutputClaimNumber = inputState.getClaims().stream()
-                .filter(claimList -> claimList.getClaimNumber().equals(outputClaim.getClaimNumber()))
-                .collect(Collectors.toList());
-
-        Claim inputClaim = inputClaimListWithOutputClaimNumber.get(inputClaimListWithOutputClaimNumber.size() - 1);
-
-        requireThat(req -> {
+       requireThat(req -> {
             req.using("Insurance transaction must have input states", (!tx.getInputStates().isEmpty()));
-            req.using("Input State must have at least one claim with the same number as the output claim", (!inputClaimListWithOutputClaimNumber.isEmpty()));
+            req.using("Insurance transaction must have one input state", tx.getInputStates().size() == 1);
+            InsuranceState inputState = (InsuranceState)tx.getInput(0);
+            req.using("Insurance input transaction must be of type InsuranceState", inputState instanceof InsuranceState);
+
+            req.using("Insurance transaction must have output states", (!tx.getOutputStates().isEmpty()));
+            req.using("Insurance transaction must have one output state", tx.getOutputStates().size() == 1);
+            InsuranceState outputState = (InsuranceState) tx.getOutput(0);
+            req.using("Insurance output transaction must be of type InsuranceState", outputState instanceof InsuranceState);
+
+            req.using("Insurance transaction must have a command", tx.getCommands().size() == 1);
+            req.using("Insurance transaction command must be a AcceptClaim command", tx.getCommands().get(0).getValue() instanceof InsuranceContract.Commands.RejectClaim);
+
+            req.using("Insurance output transaction must have claims", (!outputState.getClaims().isEmpty()));
+            Claim outputClaim = outputState.getClaims().get(outputState.getClaims().size() - 1 );
+            req.using("Output Claim must be in acceptance status", outputClaim.getClaimStatus().equals(ClaimStatus.Rejected));
+            req.using("Output claim must have insurance detail information", outputClaim.getInsuranceDetail() == null);
+
+            req.using("Insurance input transaction must have claims", (!inputState.getClaims().isEmpty()));
+            List<Claim> inputClaimListWithOutputClaimNumber = inputState.getClaims().stream()
+                    .filter(claimList -> claimList.getClaimNumber().equals(outputClaim.getClaimNumber()))
+                    .collect(Collectors.toList());
+            Claim inputClaim = inputClaimListWithOutputClaimNumber.get(inputClaimListWithOutputClaimNumber.size() - 1);
             req.using("Input state claim must be in proposal status", (inputClaim.getClaimStatus().equals(ClaimStatus.Proposal)));
-            req.using("Output Claim must be in reject status", outputClaim.getClaimStatus().equals(ClaimStatus.Rejected));
+            req.using("Input claim must not have insurance detail information", inputClaim.getInsuranceDetail() == null);
+            req.using("Input State must have at least one claim with the same number as the output claim", (!inputClaimListWithOutputClaimNumber.isEmpty()));
+
+            req.using("Issuer must be a required signer", tx.getCommands().get(0).getSigners().contains(outputState.getInsurer().getOwningKey()));
             return null;
         });
     }
@@ -100,23 +113,36 @@ public class InsuranceContract implements Contract {
     }
 
     private void verifyClaimAcceptance(LedgerTransaction tx){
-        InsuranceState inputState = (InsuranceState)tx.getInput(0);
-        InsuranceState outputState = (InsuranceState) tx.getOutput(0);
-
-        Claim outputClaim = outputState.getClaims().get(outputState.getClaims().size() - 1 );
-
-        List<Claim> inputClaimListWithOutputClaimNumber = inputState.getClaims().stream()
-                .filter(claimList -> claimList.getClaimNumber().equals(outputClaim.getClaimNumber()))
-                .collect(Collectors.toList());
-
-        Claim inputClaim = inputClaimListWithOutputClaimNumber.get(inputClaimListWithOutputClaimNumber.size() - 1);
-
 
         requireThat(req -> {
             req.using("Insurance transaction must have input states", (!tx.getInputStates().isEmpty()));
-            req.using("Input State must have at least one claim with the same number as the output claim", (!inputClaimListWithOutputClaimNumber.isEmpty()));
-            req.using("Input state claim must be in proposal status", (inputClaim.getClaimStatus().equals(ClaimStatus.Proposal)));
+            req.using("Insurance transaction must have one input state", tx.getInputStates().size() == 1);
+            InsuranceState inputState = (InsuranceState)tx.getInput(0);
+            req.using("Insurance input transaction must be of type InsuranceState", inputState instanceof InsuranceState);
+
+            req.using("Insurance transaction must have output states", (!tx.getOutputStates().isEmpty()));
+            req.using("Insurance transaction must have one output state", tx.getOutputStates().size() == 1);
+            InsuranceState outputState = (InsuranceState) tx.getOutput(0);
+            req.using("Insurance output transaction must be of type InsuranceState", outputState instanceof InsuranceState);
+
+            req.using("Insurance transaction must have a command", tx.getCommands().size() == 1);
+            req.using("Insurance transaction command must be a AcceptClaim command", tx.getCommands().get(0).getValue() instanceof InsuranceContract.Commands.AcceptClaim);
+
+            req.using("Insurance output transaction must have claims", (!outputState.getClaims().isEmpty()));
+            Claim outputClaim = outputState.getClaims().get(outputState.getClaims().size() - 1 );
             req.using("Output Claim must be in acceptance status", outputClaim.getClaimStatus().equals(ClaimStatus.Accepted));
+            req.using("Output claim must have insurance detail information", outputClaim.getInsuranceDetail() != null);
+
+            req.using("Insurance input transaction must have claims", (!inputState.getClaims().isEmpty()));
+            List<Claim> inputClaimListWithOutputClaimNumber = inputState.getClaims().stream()
+                    .filter(claimList -> claimList.getClaimNumber().equals(outputClaim.getClaimNumber()))
+                    .collect(Collectors.toList());
+            Claim inputClaim = inputClaimListWithOutputClaimNumber.get(inputClaimListWithOutputClaimNumber.size() - 1);
+            req.using("Input state claim must be in proposal status", (inputClaim.getClaimStatus().equals(ClaimStatus.Proposal)));
+            req.using("Input claim must not have insurance detail information", inputClaim.getInsuranceDetail() == null);
+            req.using("Input State must have at least one claim with the same number as the output claim", (!inputClaimListWithOutputClaimNumber.isEmpty()));
+
+            req.using("Issuer must be a required signer", tx.getCommands().get(0).getSigners().contains(outputState.getInsurer().getOwningKey()));
             return null;
         });
     }
